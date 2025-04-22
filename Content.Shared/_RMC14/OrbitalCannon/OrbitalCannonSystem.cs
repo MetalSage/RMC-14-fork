@@ -15,6 +15,7 @@ using Content.Shared.Chat;
 using Content.Shared.Database;
 using Content.Shared.Ghost;
 using Content.Shared.Maps;
+using Content.Shared.Interaction;
 using Content.Shared.Popups;
 using Content.Shared.UserInterface;
 using Robust.Shared.Audio;
@@ -50,6 +51,7 @@ public sealed class OrbitalCannonSystem : EntitySystem
     [Dependency] private readonly RMCPlanetSystem _rmcPlanet = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly SharedTransformSystem _transform = default!;
+    [Dependency] private readonly SharedInteractionSystem _interaction = default!;
 
     private static readonly EntProtoId OrbitalTargetMarker = "RMCLaserDropshipTarget";
 
@@ -124,6 +126,16 @@ public sealed class OrbitalCannonSystem : EntitySystem
         if (!TryComp(args.Target, out OrbitalCannonComponent? cannon))
             return;
 
+        var msg = Loc.GetString("rmc-power-loader-too-far");
+        foreach (var buckled in args.Buckled)
+        {
+            if (!_interaction.InRangeUnobstructed(buckled, args.Target))
+            {
+                _popup.PopupClient(msg, ent, buckled, PopupType.SmallCaution);
+                return;
+            }
+        }
+
         args.Handled = true;
         var container = _container.EnsureContainer<ContainerSlot>(args.Target, cannon.WarheadContainer);
         if (container.ContainedEntity != null)
@@ -170,6 +182,16 @@ public sealed class OrbitalCannonSystem : EntitySystem
     {
         if (!TryComp(args.Target, out OrbitalCannonComponent? cannon))
             return;
+
+        var msg = Loc.GetString("rmc-power-loader-too-far");
+        foreach (var buckled in args.Buckled)
+        {
+            if (!_interaction.InRangeUnobstructed(buckled, args.Target))
+            {
+                _popup.PopupClient(msg, ent, buckled, PopupType.SmallCaution);
+                return;
+            }
+        }
 
         args.Handled = true;
         if (!_container.TryGetContainer(args.Target, cannon.WarheadContainer, out var warheadContainer) ||
