@@ -23,6 +23,7 @@
     damageContainer: Inorganic
   - type: Sprite
     drawdepth: WallMountedItems
+    offset: 0.0, 0.5
     sprite: _RMC14/Structures/Wallmounts/camera.rsi
     layers:
     - map: [ "enum.SurveillanceCameraVisualsKey.Layer" ]
